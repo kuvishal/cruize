@@ -9,21 +9,20 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 @Entity
 public class Booking {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int booking_id;
-
-	public int getBooking_id() {
-		return booking_id;
-	}
-
+	
 	private int cost;
 
 	private int coupon_id;
 
+	@DateTimeFormat(pattern = "dd/MM/yyyy")
 	private Date travel_date;
 
 	private Date booking_date;
@@ -34,13 +33,23 @@ public class Booking {
 
 	private int vesselItrId;
 
-	@Override
-	public String toString() {
-		return "Booking [booking_id=" + booking_id + ", cost=" + cost + ", coupon_id=" + coupon_id + ", travel_date="
-				+ travel_date + ", booking_date=" + booking_date + ", numberOfPassenger=" + numberOfPassenger
-				+ ", emailId=" + emailId + ", vesselItrId=" + vesselItrId + "]";
+	private int discountAmount;
+	
+	private int finalCost;
+	
+	public Booking(int cost, int coupon_id, String travel_date, int numberOfPassenger, String emailId, int vesselItrId,
+			int discountAmount) {
+		super();
+		this.cost = cost;
+		this.coupon_id = coupon_id;
+		this.travel_date = Date.valueOf(travel_date);
+		this.numberOfPassenger = numberOfPassenger;
+		this.emailId = emailId;
+		this.vesselItrId = vesselItrId;
+		this.discountAmount = discountAmount;
+		this.finalCost= cost-discountAmount;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -49,7 +58,9 @@ public class Booking {
 		result = prime * result + booking_id;
 		result = prime * result + cost;
 		result = prime * result + coupon_id;
+		result = prime * result + discountAmount;
 		result = prime * result + ((emailId == null) ? 0 : emailId.hashCode());
+		result = prime * result + finalCost;
 		result = prime * result + numberOfPassenger;
 		result = prime * result + ((travel_date == null) ? 0 : travel_date.hashCode());
 		result = prime * result + vesselItrId;
@@ -76,10 +87,14 @@ public class Booking {
 			return false;
 		if (coupon_id != other.coupon_id)
 			return false;
+		if (discountAmount != other.discountAmount)
+			return false;
 		if (emailId == null) {
 			if (other.emailId != null)
 				return false;
 		} else if (!emailId.equals(other.emailId))
+			return false;
+		if (finalCost != other.finalCost)
 			return false;
 		if (numberOfPassenger != other.numberOfPassenger)
 			return false;
@@ -91,6 +106,30 @@ public class Booking {
 		if (vesselItrId != other.vesselItrId)
 			return false;
 		return true;
+	}
+
+
+	public Booking() {
+		super();
+	}
+	
+	public int getBooking_id() {
+		return booking_id;
+	}
+
+	public int getFinalCost() {
+		return finalCost;
+	}
+	
+	public void setFinalCost(){
+		finalCost=cost-discountAmount;
+	}
+	public int getDiscountAmount() {
+		return discountAmount;
+	}
+
+	public void setDiscountAmount(int discountAmount) {
+		this.discountAmount = discountAmount;
 	}
 
 	public int getVesselItrId() {
@@ -121,8 +160,8 @@ public class Booking {
 		return travel_date;
 	}
 
-	public void setTravel_date(Date travel_date) {
-		this.travel_date = travel_date;
+	public void setTravel_date(String travel_date) {
+		this.travel_date = Date.valueOf(travel_date);
 	}
 
 	public int getNumberOfPassenger() {
@@ -148,21 +187,6 @@ public class Booking {
 	@PrePersist
 	public void prePersist() {
 		booking_date = (booking_date == null) ? Date.valueOf(LocalDate.now()) : booking_date;
-	}
-
-	public Booking(int cost, int coupon_id, String travel_date, int numberOfPassenger, String emailId,
-			int vesselItrId) {
-		super();
-		this.cost = cost;
-		this.coupon_id = coupon_id;
-		this.travel_date = Date.valueOf(travel_date);
-		this.numberOfPassenger = numberOfPassenger;
-		this.emailId = emailId;
-		this.vesselItrId = vesselItrId;
-	}
-
-	public Booking() {
-		super();
 	}
 
 }

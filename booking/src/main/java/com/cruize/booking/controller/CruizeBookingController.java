@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,8 +47,14 @@ public class CruizeBookingController {
 
 	@GetMapping("/{bookingId}")
     @ResponseStatus(code= HttpStatus.OK)
-    public Booking getTrip(@PathVariable("bookingId") Long id) {
+    public Booking getBooking(@PathVariable("bookingId") Integer id) {
 		return bookingService.getBookingById(id);
+    }
+	
+	@DeleteMapping("/{bookingId}")
+    @ResponseStatus(code= HttpStatus.OK)
+    public String removeCoupon(@PathVariable("bookingId") Integer id) {
+        return bookingService.removeBooking(id);
     }
 
 	@PostMapping("")
@@ -55,21 +62,19 @@ public class CruizeBookingController {
 	public void createBooking(@RequestBody @Valid Booking booking) {
 		bookingService.createBooking(booking);
 		//updateSlotsBooking(booking);
-		
 	}
 	
 
 	  public void updateSlotsBooking(Booking booking) {
 	        
-	        RestTemplate restTemplat = new RestTemplate();
+	        RestTemplate restTemplate = new RestTemplate();
 	        HttpHeaders headers = new HttpHeaders();
 	        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 	        HashMap<String, Integer> bodyparams = new HashMap<>();
 	        bodyparams.put("vessel_itenoryId", booking.getVesselItrId());
 	        bodyparams.put("avilablity", booking.getNumberOfPassenger());
 	        HttpEntity<HashMap<String, Integer>> entity = new HttpEntity<>(bodyparams, headers);
-	        //restTemplate.exchange("http://localhost:8096/notification/send", HttpMethod.POST, entity, Void.class);
-	        restTemplat.exchange(env.getProperty("notification.service.url"), HttpMethod.PUT, entity, Void.class);
+	        restTemplate.exchange(env.getProperty("notification.service.url"), HttpMethod.PUT, entity, Void.class);
 
 	    }
 

@@ -3,6 +3,7 @@ package com.cruize.booking.service;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -19,10 +20,12 @@ import com.cruize.booking.repository.CruizeBookingRepository;
 @Service
 public class CruizeBookingService {
 	
+	private static final String BOOKING_DOESN_T_EXIST = "Booking doesn't exist!";
 	@Autowired
 	private CruizeBookingRepository bookingRepo;
 	
 	public Booking createBooking(@Valid Booking model) {
+		model.setFinalCost();
 		return bookingRepo.save(model);
 	}
 
@@ -48,7 +51,7 @@ public class CruizeBookingService {
 				}
 			}
 			
-			ExampleMatcher matcher = ExampleMatcher.matchingAll().withIgnoreCase()
+			ExampleMatcher matcher = ExampleMatcher.matchingAny().withIgnoreCase()
 					.withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING).withIgnorePaths("booking_id")
 					.withIgnoreNullValues();
 			Example<Booking> ex = Example.of(booking, matcher);
@@ -63,9 +66,20 @@ public class CruizeBookingService {
 	
 	}
 
-	public Booking getBookingById(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+	public Booking getBookingById(Integer id) {
+		return bookingRepo.findById(id).orElseThrow(
+				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format(BOOKING_DOESN_T_EXIST)));
+	}
+
+
+	public String removeBooking(Integer id) {
+		Optional<Booking> bookingOptional = bookingRepo.findById(id);
+		if (bookingOptional.isPresent()) {
+			bookingRepo.deleteById(id);
+			return "Deleted the coupon";
+		} else {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format(BOOKING_DOESN_T_EXIST));
+		}
 	}
 
 }
