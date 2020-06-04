@@ -61,7 +61,7 @@ public class CruizeBookingController {
 	@ResponseStatus(HttpStatus.OK)
 	public void createBooking(@RequestBody @Valid Booking booking) {
 		bookingService.createBooking(booking);
-		//updateSlotsBooking(booking);
+		updateSlotsBooking(booking);
 	}
 	
 
@@ -74,7 +74,7 @@ public class CruizeBookingController {
 	        bodyparams.put("vessel_itenoryId", booking.getVesselItrId());
 	        bodyparams.put("avilablity", booking.getNumberOfPassenger());
 	        HttpEntity<HashMap<String, Integer>> entity = new HttpEntity<>(bodyparams, headers);
-	        restTemplate.exchange(env.getProperty("notification.service.url"), HttpMethod.PUT, entity, Void.class);
+	        restTemplate.exchange(env.getProperty("vessel.service.url"), HttpMethod.PUT, entity, Void.class);
 
 	    }
 
